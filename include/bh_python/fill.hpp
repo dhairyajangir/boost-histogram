@@ -300,13 +300,21 @@ bool to_int64_array(const py::array& array, c_array_t<std::int64_t>& out) {
         c_array_t<std::int64_t> result(
             std::vector<py::ssize_t>(array.shape(), array.shape() + array.ndim()));
         auto* data = result.mutable_data();
+        bool all_integer = true;
         for(std::size_t i = 0; i < result.size(); ++i) {
             const py::object item = items[i];
-            if(!is_integer_object(item) || !to_int64<Strict>(item, data[i]))
+            if(!is_integer_object(item)) {
+                if(!Strict)
+                    return false;
+                // Check later integer weights before falling back to double.
+                all_integer = false;
+            } else if(!to_int64<Strict>(item, data[i])) {
                 return false;
+            }
         }
-        out = std::move(result);
-        return true;
+        if(all_integer)
+            out = std::move(result);
+        return all_integer;
     }
     return false;
 }

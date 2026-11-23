@@ -209,6 +209,15 @@ def test_integer_weight_overflow(storage, weight):
     assert h[0] == 0
 
 
+@pytest.mark.parametrize("storage", STORAGES)
+@pytest.mark.parametrize("weights", [[1.5, 1 << 64], [1 << 64, 1.5]])
+def test_mixed_object_integer_weight_overflow(storage, weights):
+    h = bh.Histogram(bh.axis.Integer(0, 2), storage=storage())
+    with pytest.raises(OverflowError):
+        h.fill([0, 1], weight=np.array(weights, dtype=object))
+    np.testing.assert_array_equal(h.view(), [0, 0])
+
+
 @pytest.mark.parametrize(
     "form",
     [int, lambda v: [v], lambda v: np.array([v], dtype=object)],
