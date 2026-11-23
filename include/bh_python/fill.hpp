@@ -299,7 +299,7 @@ bool to_int64_array(const py::array& array, c_array_t<std::int64_t>& out) {
         const auto items = py::cast<py::sequence>(array.attr("ravel")());
         c_array_t<std::int64_t> result(
             std::vector<py::ssize_t>(array.shape(), array.shape() + array.ndim()));
-        auto* data = result.mutable_data();
+        auto* data       = result.mutable_data();
         bool all_integer = true;
         for(std::size_t i = 0; i < result.size(); ++i) {
             const py::object item = items[i];
